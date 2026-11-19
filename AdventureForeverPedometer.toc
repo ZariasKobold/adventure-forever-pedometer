@@ -1,0 +1,16 @@
+## Interface: 16001
+## Title: Adventure Forever |cff66ccffPedometer|r
+## Notes: Fallback TOC. The game prefers AdventureForeverPedometer_Forever.toc.
+## Author: Draconic Designs
+## Version: 1.0.0
+## X-License: MIT
+## SavedVariables: AdventureForeverPedometerDB
+## IconTexture: Interface\Icons\Ability_Tracking
+## Category: Map & Minimap
+## AddonCompartmentFunc: AdventureForeverPedometer_OnCompartmentClick
+
+Core.lua
+UI.lua
+Pedometer.lua
+Badge.lua
+Window.lua

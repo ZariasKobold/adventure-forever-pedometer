@@ -2,7 +2,7 @@
 ## Title: Adventure Forever |cff66ccffPedometer|r
 ## Notes: How far you've traveled on foot, mounted, flying, swimming, and by flight path, with a step counter by the minimap. Open with /pedometer.
 ## Author: Draconic Designs
-## Version: 1.0.0
+## Version: 1.0.1
 ## X-License: MIT
 ## SavedVariables: AdventureForeverPedometerDB
 ## IconTexture: Interface\Icons\Ability_Tracking

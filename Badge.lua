@@ -8,18 +8,17 @@ local _, P = ...
 local ICON = "Interface\\Icons\\Ability_Tracking" -- a trail of footprints
 local badge
 
--- Beside the calendar button, or wherever you dragged it.
+-- Just under the zone name, left of the calendar's corner, or wherever you dragged it.
+-- The default follows the minimap cluster, so it moves along if Edit Mode moves the minimap.
+local DEFAULT_X, DEFAULT_Y = -54, -61
+
 local function place(f)
 	f:ClearAllPoints()
 	local saved = P.db.options.badgePosition
 	if type(saved) == "table" and saved.point then
 		f:SetPoint(saved.point, UIParent, saved.relPoint or saved.point, saved.x or 0, saved.y or 0)
-	elseif GameTimeFrame and GameTimeFrame:IsShown() then
-		f:SetPoint("RIGHT", GameTimeFrame, "LEFT", -2, 0)
-	elseif Minimap then
-		f:SetPoint("TOPRIGHT", Minimap, "TOPLEFT", -6, 0)
 	else
-		f:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -220, -6)
+		f:SetPoint("TOPRIGHT", MinimapCluster or UIParent, "TOPRIGHT", DEFAULT_X, DEFAULT_Y)
 	end
 end
 
@@ -47,7 +46,9 @@ local function create()
 	local f = CreateFrame("Button", nil, UIParent)
 	P.Backdrop(f, 0.85)
 	f:SetSize(70, 22)
-	f:SetFrameStrata("MEDIUM")
+	-- Above the minimap cluster, whose zone bar and buttons sit over MEDIUM frames and
+	-- were catching the mouse when you tried to grab the badge.
+	f:SetFrameStrata("HIGH")
 	f:SetFrameLevel(20)
 	f:SetClampedToScreen(true)
 	f:SetMovable(true)

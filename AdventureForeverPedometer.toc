@@ -2,7 +2,7 @@
 ## Title: Adventure Forever |cff66ccffPedometer|r
 ## Notes: Fallback TOC. The game prefers AdventureForeverPedometer_Forever.toc.
 ## Author: Draconic Designs
-## Version: 1.0.0
+## Version: 1.0.1
 ## X-License: MIT
 ## SavedVariables: AdventureForeverPedometerDB
 ## IconTexture: Interface\Icons\Ability_Tracking

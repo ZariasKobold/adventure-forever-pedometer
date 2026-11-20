@@ -29,5 +29,5 @@ Same platform as the guide (Interface 16001, the modern Midnight API on Lua 5.1)
 ## Releases
 
 - Version lives only in both TOCs' `## Version:` line. Bump, commit, tag `vX.Y.Z`, push the tag.
-- Zip: `git archive --format=zip --prefix=AdventureForeverPedometer/ -o AdventureForeverPedometer-vX.Y.Z.zip vX.Y.Z` (tests and this file are left out by `.gitattributes`), then attach it to a GitHub release.
+- Zip: `git archive --format=zip --prefix=AdventureForeverPedometer/ -o AdventureForeverPedometer-vX.Y.Z.zip vX.Y.Z` (tests and this file are left out by `.gitattributes`), run from this folder, then attach it to a GitHub release. **Keep every release's zip here in this folder** (Dalton asked for that; `*.zip` is git-ignored, so they stay local).
 - Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`).

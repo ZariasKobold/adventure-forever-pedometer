@@ -184,6 +184,62 @@ class PedometerAddonTests(unittest.TestCase):
         self.assertEqual(self.p.ImportFromGuide(self.p, None), 0)
         self.assertEqual(self.p.ImportFromGuide(self.p, self.lua.eval("{ journey = 'junk' }")), 0)
 
+    # Places
+
+    def test_place_keys(self):
+        key = self.p.PlaceKey
+        self.assertEqual(key("The Deadmines"), "deadmines")
+        self.assertEqual(key("Deadmines"), "deadmines")
+        self.assertEqual(key("Zul'Farrak"), "zulfarrak")
+        self.assertIsNone(key(""))
+        self.assertIsNone(key(None))
+
+    def test_arriving_counts_visits(self):
+        self.lua.execute("""
+            agf_where = { "The Deadmines", "party" }
+            agf_now = 86400 * 10
+            time = function() return agf_now end
+            GetInstanceInfo = function() return agf_where[1], agf_where[2] end
+            GetRealZoneText = function() return agf_where[1] end
+            UnitName = function() return "Me" end
+            GetRealmName = function() return "Realm" end
+            UnitClass = function() return "Druid", "DRUID", 11 end""")
+        self.p.Arrive(self.p)
+        self.p.Arrive(self.p)                                  # a reload inside: not another visit
+        self.lua.execute("agf_where = { 'Westfall', 'none' }")
+        self.p.Arrive(self.p)
+        self.lua.execute("agf_where = { 'The Deadmines', 'party' }")
+        self.p.Arrive(self.p)
+        places = to_py(self.p.Mine(self.p).places)
+        self.assertEqual(places["deadmines"]["visits"], 2)
+        self.assertEqual(places["deadmines"]["kind"], "dungeon")
+        self.assertEqual(places["westfall"]["visits"], 1)
+        self.assertEqual(places["westfall"]["kind"], "zone")
+        text = self.p.PlacesText(self.p, self.p.Mine(self.p).places, 86400 * 12)
+        self.assertIn("The Deadmines", text)
+        self.assertIn("2 visits, last 2 days ago", text)
+        self.assertLess(text.index("The Deadmines"), text.index("Westfall"))   # dungeons, then zones
+
+    def test_imports_guide_visits_once(self):
+        guide = self.lua.eval("""{ journey = {
+            ["Me-Realm"] = { here = "deadmines", class = "DRUID",
+                instances = { deadmines = { visits = 3, last = 100 } },
+                instanceNames = { deadmines = "Deadmines" },
+                zones = { Westfall = { visits = 5, last = 50 } } },
+            ["Alt-Realm"] = { instances = {}, zones = {} } } }""")
+        self.assertEqual(self.p.ImportVisits(self.p, guide), 1)
+        rec = to_py(self.p.db.characters["Me-Realm"])
+        self.assertEqual(rec["places"]["deadmines"], {"name": "Deadmines", "kind": "dungeon", "visits": 3, "last": 100})
+        self.assertEqual(rec["places"]["westfall"]["visits"], 5)
+        self.assertEqual(rec["here"], "deadmines")       # standing there: no extra visit at login
+        self.assertEqual(self.p.ImportVisits(self.p, guide), 0)    # only once
+        self.assertEqual(self.p.ImportVisits(self.p, None), 0)
+        # Totals add characters together.
+        self.p.db.characters["Alt-Realm"].places = self.lua.eval(
+            "{ deadmines = { name = 'The Deadmines', kind = 'dungeon', visits = 2, last = 300 } }")
+        total = to_py(self.p.PlaceTotals(self.p))
+        self.assertEqual((total["deadmines"]["visits"], total["deadmines"]["last"]), (5, 300))
+
 
 if __name__ == "__main__":
     unittest.main()

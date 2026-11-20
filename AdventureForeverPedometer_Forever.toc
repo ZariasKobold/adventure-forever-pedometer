@@ -1,8 +1,8 @@
 ## Interface: 16001
 ## Title: Adventure Forever |cff66ccffPedometer|r
-## Notes: How far you've traveled on foot, mounted, flying, swimming, and by flight path, with a step counter by the minimap. Open with /pedometer.
+## Notes: How far you've traveled on foot, mounted, flying, swimming, and by flight path, with a step counter by the minimap, and the dungeons, raids, and zones you've visited. Open with /pedometer.
 ## Author: Draconic Designs
-## Version: 1.0.1
+## Version: 1.1.0
 ## X-License: MIT
 ## SavedVariables: AdventureForeverPedometerDB
 ## IconTexture: Interface\Icons\Ability_Tracking
@@ -13,4 +13,5 @@ Core.lua
 UI.lua
 Pedometer.lua
 Badge.lua
+Places.lua
 Window.lua

@@ -1,6 +1,6 @@
 -- Adventure Forever Pedometer
--- Core: namespace, saved variables, the /pedometer command, and bringing over the steps
--- Adventure Guide Forever counted before the pedometer became its own addon.
+-- Core: namespace, saved variables, the /pedometer command, and bringing over the distance
+-- and visit counts Adventure Guide Forever kept before they moved here.
 
 -- Globals this addon creates, on purpose (everything else lives on the namespace P):
 --   AdventureForeverPedometerDB                   saved variables
@@ -35,7 +35,7 @@ end
 ------------------------------------------------------------------------
 
 local defaults = {
-	characters = {},     -- [name-realm] = distance traveled (never leaves your computer)
+	characters = {},     -- [name-realm] = distance traveled and places visited (never leaves your computer)
 	options = {
 		badge = true,    -- step counter beside the minimap's calendar button
 		-- badgePosition = { point, relPoint, x, y } once you drag it
@@ -89,12 +89,15 @@ end
 -- /pedometer
 ------------------------------------------------------------------------
 
-local USAGE = "|cffffd100/pedometer|r: open your distance traveled.  |cffffd100/pedometer badge|r: the step "
-	.. "counter by the minimap on or off.  |cffffd100/pedometer status|r: what the pedometer sees right now."
+local USAGE = "|cffffd100/pedometer|r: open your distance traveled.  |cffffd100/pedometer places|r: the "
+	.. "dungeons, raids, and zones you've visited.  |cffffd100/pedometer badge|r: the step counter by the "
+	.. "minimap on or off.  |cffffd100/pedometer status|r: what the pedometer sees right now."
 
 local commands = {
 	[""] = function() P:ToggleWindow() end,
 	show = function() P:ToggleWindow() end,
+	places = function() P:ShowWindow("places") end,
+	visits = function() P:ShowWindow("places") end,
 	help = function() P:Print(USAGE) end,
 	badge = function()
 		P:SetOption("badge", not P:Option("badge"))
@@ -137,6 +140,11 @@ local handlers = {
 		local n = P:ImportFromGuide(AdventureGuideForeverDB)
 		if n > 0 then
 			P:Print("Brought over the distance Adventure Guide Forever counted for %d character%s.", n, n == 1 and "" or "s")
+		end
+		local v = P:ImportVisits(AdventureGuideForeverDB)
+		if v > 0 then
+			P:Print("Brought over the places Adventure Guide Forever counted for %d character%s. See them with /pedometer places.",
+				v, v == 1 and "" or "s")
 		end
 	end,
 }

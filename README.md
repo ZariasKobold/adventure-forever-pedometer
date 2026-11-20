@@ -1,7 +1,8 @@
 # Adventure Forever Pedometer
 
 How far you've traveled in WoW Forever: on foot, mounted, flying, swimming, and by flight
-path, per character, this session and all time. Made by Draconic Designs, the people behind
+path, per character, this session and all time. Plus where you've been: how many times
+you've visited each dungeon, raid, and zone, and when last. Made by Draconic Designs, the people behind
 Adventure Guide Forever (it used to be part of that addon).
 
 ## Use
@@ -13,6 +14,8 @@ Adventure Guide Forever (it used to be part of that addon).
   - marathons walked, and how much of it was in combat.
 
   If you have more than one character, click the corner to add them all up.
+- **`/pedometer places`** (or the window's "Places visited" button) lists the dungeons,
+  raids, and zones you've been to, most visited first, with when you were last there.
 - **Step counter:** a small badge beside the minimap's calendar shows your steps this session.
   - Hover it for this session vs all time.
   - Click it to open the window.
@@ -31,13 +34,14 @@ Adventure Guide Forever (it used to be part of that addon).
 
 ## Coming from Adventure Guide Forever
 
-Adventure Guide Forever counted distance before version 0.8.0. The first time you log in
-with this addon installed, it brings that over for every character, once. You'll see a
-message in chat when it does. Dungeon and zone visit counts stay in the guide's Journey tab.
+Adventure Guide Forever counted distance before version 0.8.0, and visits to dungeons,
+raids, and zones before 0.9.0. The first time you log in with this addon installed, it
+brings each of those over for every character, once. You'll see a message in chat when it
+does.
 
 ## Privacy
 
-Everything stays on your computer, in `AdventureForeverPedometerDB`. Nothing is shared with
+Everything (distance and places) stays on your computer, in `AdventureForeverPedometerDB`. Nothing is shared with
 your group or anyone else.
 
 ## Install

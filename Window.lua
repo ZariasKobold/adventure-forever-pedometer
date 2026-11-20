@@ -1,14 +1,17 @@
--- The pedometer window (/pedometer, or click the badge): distance traveled each way, this
--- session and all time, for this character or all of them together.
+-- The pedometer window (/pedometer, or click the badge). Two pages: Distance (each way you
+-- travel, this session and all time) and Places (dungeons, raids, and zones you've visited).
+-- Either can show this character or all of them together.
 
 local _, P = ...
 
 local MARATHON_MILES = 26.2
 local MAX_CHARACTERS = 6
+local MAX_PLACES = 8 -- per list on the Places page
 local WIDTH, ROW = 400, 34
 
 local window
 local showAll = false
+local page = "distance" -- or "places"
 
 -- "under a minute", "25 minutes", "2 hours 5 minutes".
 function P.PlayedFor(secs)
@@ -110,7 +113,22 @@ local function create()
 	local privacy = P.Text(f, "GameFontDisableSmall")
 	privacy:SetPoint("BOTTOMLEFT", 16, 14)
 	privacy:SetPoint("RIGHT", -16, 0)
-	privacy:SetText("Your distance stays on your computer. It's never shared.")
+	privacy:SetText("Your distance and places stay on your computer. They're never shared.")
+
+	-- The Places page: one block of text, in place of the distance rows.
+	f.places = P.Text(f)
+	f.places:SetPoint("TOPLEFT", 16, -44)
+	f.places:SetPoint("RIGHT", -16, 0)
+
+	-- Switch pages.
+	f.pageButton = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+	f.pageButton:SetSize(130, 22)
+	f.pageButton:SetPoint("BOTTOMRIGHT", -12, 32)
+	f.pageButton:SetScript("OnClick", function()
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		page = page == "places" and "distance" or "places"
+		P:RefreshWindow()
+	end)
 
 	f:Hide()
 	return f
@@ -143,16 +161,56 @@ function P:WindowNotes(rec, all)
 	return lines
 end
 
+-- The Places page's text: dungeons and raids, then zones, most visited first.
+function P:PlacesText(places, now)
+	local lines = {}
+	local function list(title, group)
+		local sorted = P.SortedPlaces(places, group)
+		lines[#lines + 1] = "|cffffd100" .. title .. "|r"
+		if #sorted == 0 then
+			lines[#lines + 1] = "|cff888888None yet.|r"
+		end
+		for i = 1, math.min(MAX_PLACES, #sorted) do
+			local v = sorted[i]
+			local ago = P.Ago(v.last, now)
+			lines[#lines + 1] = string.format("%s%s  |cff888888%d visit%s%s|r", v.name,
+				v.kind == "raid" and " |cff888888(raid)|r" or "", v.visits, v.visits == 1 and "" or "s",
+				ago and (", last " .. ago) or "")
+		end
+		if #sorted > MAX_PLACES then
+			lines[#lines + 1] = string.format("|cff888888...and %d more.|r", #sorted - MAX_PLACES)
+		end
+		lines[#lines + 1] = " "
+	end
+	list("Dungeons and raids", "instances")
+	list("Zones", "zones")
+	return table.concat(lines, "\n")
+end
+
 function P:RefreshWindow()
 	if not window or not window:IsShown() then return end
 	local mine = self:Mine()
 	if not mine then return end
 	local all = showAll and characterCount() > 1
-	local rec = all and self:Totals() or mine
-	local session = mine.session
 
 	window.view:SetShown(characterCount() > 1)
 	window.view.text:SetText(all and "All characters (click for this one)" or "This character (click for all)")
+	window.badge:SetChecked(self:Option("badge"))
+	local onPlaces = page == "places"
+	window.pageButton:SetText(onPlaces and "Distance" or "Places visited")
+	window.total:SetShown(not onPlaces)
+	window.session:SetShown(not onPlaces)
+	window.notes:SetShown(not onPlaces)
+	for _, row in pairs(window.rows) do row:SetShown(not onPlaces) end
+	window.places:SetShown(onPlaces)
+	if onPlaces then
+		window.places:SetText(self:PlacesText(all and self:PlaceTotals() or mine.places))
+		window:SetHeight(44 + window.places:GetStringHeight() + 72)
+		return
+	end
+
+	local rec = all and self:Totals() or mine
+	local session = mine.session
 	window.total:SetText(string.format("You've traveled |cffffd100%s|r%s.", P.Distance(P.TotalYards(rec.distance)),
 		all and " across all characters" or ""))
 	window.session:SetText(string.format("This session: |cffffd100%s|r and |cffffd100%s|r steps in %s.",
@@ -170,7 +228,6 @@ function P:RefreshWindow()
 		row.value:SetText(P.Distance(yards))
 	end
 	window.notes:SetText(table.concat(self:WindowNotes(rec, all), "\n"))
-	window.badge:SetChecked(self:Option("badge"))
 	-- Grow to fit the notes.
 	window:SetHeight(92 + #P.KINDS * ROW + 6 + window.notes:GetStringHeight() + 64)
 end
@@ -184,4 +241,13 @@ function P:ToggleWindow()
 		window:Show()
 		self:RefreshWindow()
 	end
+end
+
+-- Opens the window on a page ("distance" or "places").
+function P:ShowWindow(which)
+	if not self.db then return end
+	window = window or create()
+	page = which or page
+	window:Show()
+	self:RefreshWindow()
 end
